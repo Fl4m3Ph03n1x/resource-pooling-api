@@ -140,7 +140,6 @@ Responses:
 
 - The service should be as efficient as possible.
   It should be able to work reasonably well with at least $`10^4`$ / $`10^5`$ cars / waiting groups.
-  Explain how you did achieve this requirement.
 
 ## Architecture
 
