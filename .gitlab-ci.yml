@@ -1,0 +1,56 @@
+---
+stages:
+  - build
+  - docker
+  - acceptance
+
+## Uncomment the following sections to enable docker, image building and
+## acceptance
+
+build:
+  stage: build
+  image: fl4m3ph03n1x/car-pooling:1.0
+  variables:
+    MIX_ENV: prod
+  script:
+    - mix deps.get
+    - mix deps.compile
+    - mix compile
+  artifacts:
+    paths:
+      - .hex/
+      - _build/
+      - deps/
+      - mix.lock
+
+services:
+  - docker:dind
+
+build_image:
+  stage: docker
+  image: docker:latest
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: tcp://docker:2375/
+  services:
+    - docker:dind
+  script:
+    - echo ${CI_JOB_TOKEN} | docker login --password-stdin -u ${CI_REGISTRY_USER} ${CI_REGISTRY}
+    - docker build . -t ${CI_REGISTRY_IMAGE}:latest
+    - docker push ${CI_REGISTRY_IMAGE}:latest
+
+# Uncomment the acceptance step and do not remove or edit, this step is
+# required for us to accept your submission!
+
+acceptance:
+  image: cabify/challenge:latest
+  stage: acceptance
+  only: 
+    - master
+  dependencies: []
+  services:
+    - name: ${CI_REGISTRY_IMAGE}:latest
+      alias: pooling
+  script:
+    - /harness --address http://pooling:9091 acceptance
