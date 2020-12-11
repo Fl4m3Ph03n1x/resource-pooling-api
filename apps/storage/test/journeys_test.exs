@@ -109,7 +109,7 @@ defmodule Storage.JourneysTest do
       assert_called Set.wrap_existing!(journeys_table)
       assert_called Set.put(:_, {group_id, :waiting})
       assert_called Set.get(:_, :waiting)
-      assert_called Set.put(:_, {:waiting, [group_id, 2, 3, 4]})
+      assert_called Set.put(:_, {:waiting, [4, 3, 2, group_id]})
     end
 
     test_with_mock "returns error if it fails to register a journey", %{

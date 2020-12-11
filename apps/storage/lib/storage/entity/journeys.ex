@@ -77,7 +77,7 @@ defmodule Storage.Entity.Journeys do
     if Enum.member?(list, id) do
       {:ok, table}
     else
-      ESet.put(table, {:waiting, [id | list]})
+      ESet.put(table, {:waiting, Enum.reverse([id | list])})
     end
   end
 
