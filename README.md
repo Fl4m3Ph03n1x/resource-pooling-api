@@ -15,9 +15,9 @@ up to 4, 5 or 6 people.
 
 People requests cars in groups of 1 to 6. People in the same group want to ride
 on the same car. You can take any group at any car that has enough empty seats
-for them. If it's not possible to accommodate them, they're willing to wait until 
+for them. If it's not possible to accommodate them, they're willing to wait until
 there's a car available for them. Once a car is available for a group
-that is waiting, they should ride. 
+that is waiting, they should ride.
 
 Once they get a car assigned, they will journey until the drop off, you cannot
 ask them to take another car (i.e. you cannot swap them to another car to
@@ -51,7 +51,7 @@ Responses:
 ### PUT /cars
 
 Load the list of available cars in the service and remove all previous data
-(existing journeys and cars). This method may be called more than once during 
+(existing journeys and cars). This method may be called more than once during
 the life cycle of the service.
 
 **Body** _required_ The list of cars to load.
@@ -141,11 +141,6 @@ Responses:
 - The service should be as efficient as possible.
   It should be able to work reasonably well with at least $`10^4`$ / $`10^5`$ cars / waiting groups.
   Explain how you did achieve this requirement.
-- You are free to modify the repository as much as necessary to include or remove
-  dependencies, subject to tooling limitations above.
-- Document your decisions using MRs or in this very README adding sections to it,
-  the same way you would be generating documentation for any other deliverable.
-  We want to see how you operate in a quasi real work environment.
 
 ## Architecture
 
@@ -157,35 +152,36 @@ graph TD;
   Core-->Storage
 ```
 
-The API is a thin layer on top that receives requests and translates them to a 
-format the Core can understand. Once the Core responds, it transalates those 
-reponses to a format other HTTP clients can understand and sends that response.
+The API is a thin layer on top that receives requests and translates them to a
+format the Core can understand. Once the Core responds, it translates those
+responses to a format other HTTP clients can understand and sends that response.
 
-The Core, as the name implies, is the heart of the application. It has all the 
-business logic. It communicates with a persistence layer, Storage, to save and 
+The Core, as the name implies, is the heart of the application. It has all the
+business logic. It communicates with a persistence layer, Storage, to save and
 recover data if needed.
 
-Storage, is the persistence layer. In this solution, it uses ETS to persist 
+Storage, is the persistence layer. In this solution, it uses ETS to persist
 data in memory, but if we wanted to persists data more permanently in disk, we
-could use DETS. 
+could use DETS.
 
-Each layer is independant from each other. Any given layer may only ask things 
-to the layer bellow it, and in this specific case, respond to queries to the 
+Each layer is independent from each other. Any given layer may only ask things
+to the layer bellow it, and in this specific case, respond to queries to the
 layer above.
 
 As long as the public API of each layer is the same, changes in each layer are
-self contained and invisble to the layers above.
+self contained and invisible to the layers above.
 
 ## Efficiency
 
 Following is the BIG O notation of complexity for each endpoint:
  - `PUT /cars` is O(n) where `n` is the number of cars
  - `POST /journey` is O(1)
- - `POST /dropoff` is O(1) in a best case scenario, O(n*m) where `n` is the number 
+ - `POST /dropoff` is O(1) in a best case scenario, O(n*m) where `n` is the number
  of cars that have the same amount of free seats and `m` is the number of groups
- waiting for a car 
+ waiting for a car. This could be improved by simply returning OK, and then
+ asynchronously assign the car to the next passenger.
  - `POST /locate` is O(1)
 
- It is clear, that the `/dropoff` endpoint is by far the most expensive, but 
- this comes with the benefit of all the other endpoints having const Big O 
+ It is clear, that the `/dropoff` endpoint is by far the most expensive, but
+ this comes with the benefit of all the other endpoints having const Big O
  complexity.
