@@ -1,4 +1,4 @@
-# Car Pooling Service Challenge
+# Car Pooling Service Kata
 
 Design/implement a system to manage car pooling.
 
